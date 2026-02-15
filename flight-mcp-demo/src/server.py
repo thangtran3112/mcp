@@ -171,6 +171,23 @@ async def get_flight_details(flight_id: str) -> Dict[str, Any]:
         }
 
 
+# Expose the underlying coroutine functions for direct import/testing
+# The `@mcp.tool()` decorator returns a FunctionTool object; tests expect
+# `search_flights` and `get_flight_details` to be awaitable callables, so
+# rebind the names to the original functions attached to the tool objects.
+try:
+    search_flights_tool = search_flights
+    search_flights = search_flights_tool.fn
+except NameError:
+    pass
+
+try:
+    get_flight_details_tool = get_flight_details
+    get_flight_details = get_flight_details_tool.fn
+except NameError:
+    pass
+
+
 # ============== BOOKING MANAGEMENT TOOLS ==============
 
 @mcp.tool()
