@@ -1,0 +1,16 @@
+{
+  "modelContextProtocol": {
+    "servers": {
+      "flight-simulator": {
+        "command": "bash",
+        "args": [
+          "-c",
+          "cd /Users/ttran/personal/mcp/flight-mcp-demo && ./start-http-server.sh"
+        ],
+        "env": {
+          "PYTHONPATH": "/Users/ttran/personal/mcp/flight-mcp-demo/src"
+        }
+      }
+    }
+  }
+}

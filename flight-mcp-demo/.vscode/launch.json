@@ -1,0 +1,68 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug MCP Server",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/server.py",
+      "console": "integratedTerminal",
+      "justMyCode": true,
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/src"
+      },
+      "args": [],
+      "stopOnEntry": false
+    },
+    {
+      "name": "Debug MCP Server with Client",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/server.py",
+      "console": "integratedTerminal",
+      "justMyCode": false,
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/src",
+        "LOG_LEVEL": "DEBUG"
+      },
+      "args": [],
+      "stopOnEntry": false,
+      "postDebugTask": "Start MCP Debug Client"
+    },
+    {
+      "name": "Debug Client Only",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/debug_client.py",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/src"
+      }
+    },
+    {
+      "name": "Debug HTTP Server (with UI)",
+      "type": "python",
+      "request": "launch",
+      "module": "uvicorn",
+      "args": [
+        "src.http_adapter:app",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "8001",
+        "--reload"
+      ],
+      "console": "integratedTerminal",
+      "justMyCode": false,
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/src",
+        "LOG_LEVEL": "DEBUG"
+      },
+      "stopOnEntry": false
+    }
+  ]
+}
