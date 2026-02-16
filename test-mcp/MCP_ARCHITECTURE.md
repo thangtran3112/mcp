@@ -26,11 +26,11 @@ This document explains the Model Context Protocol (MCP) architecture used in thi
 
 MCP (Model Context Protocol) is a protocol that allows AI assistants to interact with external systems through a standardized interface. It provides three main primitives:
 
-| Component | Purpose | Direction | Example |
-|-----------|---------|-----------|---------|
-| **Tools** | Execute actions | AI → Server | Book a flight, cancel reservation |
-| **Resources** | Read data | AI ← Server | Get airport info, view policies |
-| **Prompts** | Conversation templates | Server → AI | Travel planning workflow |
+| Component     | Purpose                | Direction   | Example                           |
+| ------------- | ---------------------- | ----------- | --------------------------------- |
+| **Tools**     | Execute actions        | AI → Server | Book a flight, cancel reservation |
+| **Resources** | Read data              | AI ← Server | Get airport info, view policies   |
+| **Prompts**   | Conversation templates | Server → AI | Travel planning workflow          |
 
 ---
 
@@ -49,6 +49,7 @@ async def book_flight(flight_number: str, passenger_name: str) -> Dict:
 ```
 
 **Characteristics:**
+
 - Can modify state
 - May have side effects
 - Return operation results
@@ -67,29 +68,11 @@ async def get_airport_info(code: str) -> Dict:
 ```
 
 **Characteristics:**
+
 - Read-only (no side effects)
 - Accessed via URI patterns
 - Return data/information
 - Located in `src/resources/`
-
-### Prompts
-
-Prompts are **pre-built conversation templates** that guide AI interactions.
-
-```python
-@mcp.prompt()
-def travel_planning_prompt(destination: str, dates: str) -> str:
-    """Generate a travel planning conversation starter."""
-    return f"Help me plan a trip to {destination} on {dates}..."
-```
-
-**Characteristics:**
-- Template-based
-- Guide conversation flow
-- No execution logic
-- Located in `src/prompts/`
-
----
 
 ## Resource URIs
 
@@ -101,11 +84,11 @@ MCP resource URIs follow a custom scheme pattern similar to web URLs:
 scheme://path/with/{parameters}
 ```
 
-| Part | Example | Purpose |
-|------|---------|---------|
-| **Scheme** | `flight://`, `weather://`, `info://` | Groups related resources (like a namespace) |
-| **Path** | `airports/`, `forecast/` | Identifies the resource type |
-| **Parameters** | `{code}`, `{email}` | Dynamic values passed to the function |
+| Part           | Example                              | Purpose                                     |
+| -------------- | ------------------------------------ | ------------------------------------------- |
+| **Scheme**     | `flight://`, `weather://`, `info://` | Groups related resources (like a namespace) |
+| **Path**       | `airports/`, `forecast/`             | Identifies the resource type                |
+| **Parameters** | `{code}`, `{email}`                  | Dynamic values passed to the function       |
 
 ### How URIs Are Created
 
@@ -122,17 +105,17 @@ The parameter name in the URI (`{code}`) must match the function parameter name 
 
 ### URI Patterns in This Project
 
-| URI Pattern | Parameters | Example Request |
-|-------------|------------|-----------------|
-| `flight://airports/{code}` | `code` | `flight://airports/SFO` |
-| `bookings://history/{email}` | `email` | `bookings://history/john@example.com` |
-| `travel://tips/{destination}` | `destination` | `travel://tips/NYC` |
-| `weather://forecast/{airport_code}` | `airport_code` | `weather://forecast/JFK` |
-| `info://seat-maps/{flight_number}` | `flight_number` | `info://seat-maps/UA123` |
-| `info://baggage-policies` | *(none)* | `info://baggage-policies` |
-| `loyalty://programs` | *(none)* | `loyalty://programs` |
-| `covid://policies` | *(none)* | `covid://policies` |
-| `airlines://policies/{airline_code}` | `airline_code` | `airlines://policies/UA` |
+| URI Pattern                          | Parameters      | Example Request                       |
+| ------------------------------------ | --------------- | ------------------------------------- |
+| `flight://airports/{code}`           | `code`          | `flight://airports/SFO`               |
+| `bookings://history/{email}`         | `email`         | `bookings://history/john@example.com` |
+| `travel://tips/{destination}`        | `destination`   | `travel://tips/NYC`                   |
+| `weather://forecast/{airport_code}`  | `airport_code`  | `weather://forecast/JFK`              |
+| `info://seat-maps/{flight_number}`   | `flight_number` | `info://seat-maps/UA123`              |
+| `info://baggage-policies`            | _(none)_        | `info://baggage-policies`             |
+| `loyalty://programs`                 | _(none)_        | `loyalty://programs`                  |
+| `covid://policies`                   | _(none)_        | `covid://policies`                    |
+| `airlines://policies/{airline_code}` | `airline_code`  | `airlines://policies/UA`              |
 
 ### How URIs Are Used
 
@@ -162,7 +145,7 @@ The AI fills in parameters and requests the data:
 // Request
 {"method": "resources/read", "params": {"uri": "flight://airports/SFO"}}
 
-// Response  
+// Response
 {
   "code": "SFO",
   "name": "San Francisco International Airport",
@@ -244,11 +227,11 @@ The scheme names are arbitrary - you choose them for clarity:
 
 MCP supports multiple transport methods:
 
-| Transport | Use Case | URL Example |
-|-----------|----------|-------------|
-| **stdio** | Local development, CLI tools | N/A (stdin/stdout) |
+| Transport           | Use Case                       | URL Example                 |
+| ------------------- | ------------------------------ | --------------------------- |
+| **stdio**           | Local development, CLI tools   | N/A (stdin/stdout)          |
 | **Streamable HTTP** | Remote servers, AWS deployment | `http://localhost:8000/mcp` |
-| ~~SSE~~ | *Deprecated* | N/A |
+| ~~SSE~~             | _Deprecated_                   | N/A                         |
 
 ### Starting the Server
 
@@ -266,10 +249,10 @@ MCP supports multiple transport methods:
 
 When running with `streamable-http` transport:
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/mcp` | POST | Main MCP endpoint (initialize, tools/list, etc.) |
-| `/health` | GET | Health check |
+| Endpoint  | Method | Purpose                                          |
+| --------- | ------ | ------------------------------------------------ |
+| `/mcp`    | POST   | Main MCP endpoint (initialize, tools/list, etc.) |
+| `/health` | GET    | Health check                                     |
 
 ---
 
@@ -351,3 +334,195 @@ test-mcp/
 - [MCP Specification](https://spec.modelcontextprotocol.io/)
 - [FastMCP Documentation](https://github.com/jlowin/fastmcp)
 - [MCP Inspector](https://www.npmjs.com/package/@modelcontextprotocol/inspector)
+
+---
+
+## Appendix: Prompts
+
+> **Note:** Prompts are the least commonly used MCP primitive. Most AI interactions rely on Tools and Resources. Prompts are optional and primarily useful for standardizing common workflows.
+
+### What Are Prompts?
+
+Prompts are **pre-built conversation templates** that provide structured guidance for specific scenarios. Unlike Tools (which execute actions) or Resources (which provide data), Prompts return formatted text that helps guide the AI's interaction with the user.
+
+```python
+@mcp.prompt()
+async def smart_booking_assistant() -> str:
+    """General intelligent booking assistant introduction."""
+    return """Welcome to your AI-powered flight booking assistant!
+    
+I can help you with:
+✈️ Flight Search & Booking
+🎫 Booking Management
+📊 Real-Time Information
+...
+"""
+```
+
+### Characteristics
+
+| Aspect | Description |
+|--------|-------------|
+| **Purpose** | Provide structured conversation starters or guidance |
+| **Direction** | Server → AI (AI receives the template text) |
+| **Side Effects** | None - purely text generation |
+| **Parameters** | Can accept context to customize the response |
+| **Return Value** | Formatted string (often multi-line) |
+
+### How Prompts Differ from Tools and Resources
+
+| Feature | Tools | Resources | Prompts |
+|---------|-------|-----------|---------|
+| **Action** | Execute operations | Read data | Generate guidance text |
+| **Side Effects** | Yes (can modify state) | No | No |
+| **Use Case** | Book flight, cancel booking | Get airport info | Guide booking workflow |
+| **Invocation** | `tools/call` | `resources/read` | `prompts/get` |
+
+### When to Use Prompts
+
+Prompts are useful for:
+
+1. **Standardizing workflows** - Ensure consistent step-by-step guidance
+2. **Onboarding interactions** - Welcome messages with capabilities overview
+3. **Complex multi-step processes** - Booking flows, trip planning
+4. **Specialized scenarios** - Accessibility needs, group bookings
+
+### Prompts in This Project
+
+Located in `src/prompts/templates.py`:
+
+| Prompt Name | Parameters | Purpose |
+|-------------|------------|---------|
+| `complete_booking` | `flight_search_criteria`, `passenger_count` | Guide through booking process step-by-step |
+| `trip_planning` | `cities`, `date_range` | Plan multi-city trips with optimal routing |
+| `loyalty_optimization` | `member_status`, `upcoming_trips` | Maximize loyalty program benefits |
+| `accessibility_booking` | `assistance_needed`, `special_requirements` | Handle accessibility requirements |
+| `handle_group_travel` | `group_size`, `travel_purpose` | Coordinate group bookings |
+| `smart_booking_assistant` | *(none)* | General welcome and capabilities overview |
+
+### Example: Complete Booking Prompt
+
+```python
+@mcp.prompt()
+async def complete_booking(
+    flight_search_criteria: dict,
+    passenger_count: int
+) -> str:
+    """Guide through the entire booking process step by step."""
+    return f"""I'll help you complete your flight booking for {passenger_count} passenger(s).
+
+Based on your search criteria:
+- Route: {flight_search_criteria.get('origin')} → {flight_search_criteria.get('destination')}
+- Departure: {flight_search_criteria.get('departure_date')}
+- Return: {flight_search_criteria.get('return_date', 'One-way trip')}
+
+Here's what we'll do:
+1. Search for the best flights matching your criteria
+2. Compare options based on price, schedule, and amenities
+3. Select your preferred flights
+4. Enter passenger information
+5. Choose seats (optional)
+6. Add any extras (baggage, meals, insurance)
+7. Complete payment
+8. Receive confirmation and boarding passes
+
+Let me start by searching for available flights..."""
+```
+
+### Example: Accessibility Booking Prompt
+
+This prompt shows how prompts can handle specialized scenarios:
+
+```python
+@mcp.prompt()
+async def accessibility_booking(
+    assistance_needed: List[str],
+    special_requirements: Optional[str] = None
+) -> str:
+    """Handle bookings with accessibility requirements."""
+    assistance_str = ", ".join(assistance_needed)
+    return f"""I'll ensure your travel needs are fully accommodated.
+
+Assistance requested: {assistance_str}
+{f'Special requirements: {special_requirements}' if special_requirements else ''}
+
+Services available:
+- Wheelchair assistance (curb to gate)
+- Priority boarding
+- Assistance animals accommodation
+- Medical equipment handling
+- Accessible seating assignments
+- Personal safety briefings
+
+Important notes:
+- Arrive 3 hours early for smooth processing
+- Bring documentation for service animals
+- Medical equipment flies free
+- Accessibility services are complimentary
+
+Let me search for flights and arrange your assistance..."""
+```
+
+### How Prompts Are Invoked
+
+**1. AI Client Lists Available Prompts**
+
+```json
+// Request
+{"method": "prompts/list"}
+
+// Response
+{
+  "prompts": [
+    {"name": "complete_booking", "description": "Guide through booking process"},
+    {"name": "smart_booking_assistant", "description": "General assistant intro"},
+    ...
+  ]
+}
+```
+
+**2. AI Client Gets a Prompt**
+
+```json
+// Request
+{
+  "method": "prompts/get",
+  "params": {
+    "name": "complete_booking",
+    "arguments": {
+      "flight_search_criteria": {"origin": "SFO", "destination": "JFK", "departure_date": "2026-03-15"},
+      "passenger_count": 2
+    }
+  }
+}
+
+// Response
+{
+  "messages": [
+    {
+      "role": "assistant",
+      "content": {
+        "type": "text",
+        "text": "I'll help you complete your flight booking for 2 passenger(s).\n\nBased on your search criteria:\n- Route: SFO → JFK\n..."
+      }
+    }
+  ]
+}
+```
+
+### Testing Prompts
+
+In MCP Inspector, navigate to the **Prompts** tab to see and test available prompts. You can provide argument values and see the generated text.
+
+### Why Prompts Are Less Common
+
+Most AI interactions can be handled with:
+- **Tools** for actions (book, cancel, modify)
+- **Resources** for data (airport info, policies, status)
+
+Prompts add value when you need:
+- Consistent multi-step workflows
+- Standardized onboarding experiences
+- Context-specific guidance templates
+
+For simple interactions, the AI can generate appropriate responses without needing pre-built templates.
