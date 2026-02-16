@@ -4,12 +4,9 @@ Group booking and coordination tools
 
 from typing import Dict, Any, List, Optional
 from datetime import datetime
-from fastmcp import FastMCP
 from data.mock_data import db
 from models import SeatClass, Passenger, PassengerType
-
-# Get the MCP instance from main server
-from server import mcp
+from mcp_app import mcp
 
 
 @mcp.tool()

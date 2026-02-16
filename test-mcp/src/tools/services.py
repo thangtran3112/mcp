@@ -4,12 +4,9 @@ Additional services and features for flight bookings
 
 from typing import Dict, Any, Optional, List
 from datetime import datetime
-from fastmcp import FastMCP
 from data.mock_data import db
 from models import Baggage, Service, Insurance, SpecialAssistance
-
-# Get the MCP instance from main server
-from server import mcp
+from mcp_app import mcp
 
 
 @mcp.tool()

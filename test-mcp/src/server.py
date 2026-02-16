@@ -6,32 +6,15 @@ A comprehensive MCP server for airline booking operations using FastMCP
 
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any
-from dotenv import load_dotenv
 
 # Add src to path for imports
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from fastmcp import FastMCP
 from data.mock_data import db
-from models import (
-    FlightSearchRequest, SeatClass, BookingRequest,
-    CheckInRequest, SeatSelection, FlightStatus
-)
-
-# Load environment variables
-load_dotenv()
-
-# Initialize FastMCP server
-mcp = FastMCP(
-    name=os.getenv("MCP_SERVER_NAME", "flight-simulator"),
-    version=os.getenv("MCP_SERVER_VERSION", "0.1.0")
-)
-
-# Configure server settings
-mcp.description = "Enhanced flight booking and management system with real-time tracking"
-mcp.author = "Flight Sim MCP Team"
+from models import SeatClass
+from mcp_app import mcp  # Import shared MCP instance
 
 
 # ============== FLIGHT SEARCH TOOLS ==============
@@ -502,16 +485,17 @@ async def handle_disruption(
 # ============== IMPORT ADDITIONAL TOOLS AND RESOURCES ==============
 
 # Import all tools to register them with the MCP server
-import tools.tracking
-import tools.services
-import tools.group
+# These imports MUST come after the mcp object is created above
+import tools.tracking  # noqa: E402
+import tools.services  # noqa: E402
+import tools.group  # noqa: E402, F401
 
 # Import and register all resources
-from resources.flight_resources import register_resources
+from resources.flight_resources import register_resources  # noqa: E402
 register_resources(mcp)
 
 # Import all prompts
-import prompts.templates
+import prompts.templates  # noqa: E402, F401
 
 # ============== MAIN ENTRY POINT ==============
 

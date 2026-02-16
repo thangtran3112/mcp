@@ -2,11 +2,8 @@
 AI prompt templates for enhanced flight booking interactions
 """
 
-from fastmcp import FastMCP
 from typing import List, Optional
-
-# Get the MCP instance from main server
-from server import mcp
+from mcp_app import mcp
 
 
 @mcp.prompt()
