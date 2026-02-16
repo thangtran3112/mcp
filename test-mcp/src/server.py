@@ -171,21 +171,6 @@ async def get_flight_details(flight_id: str) -> Dict[str, Any]:
         }
 
 
-# Expose the underlying coroutine functions for direct import/testing
-# The `@mcp.tool()` decorator returns a FunctionTool object; tests expect
-# `search_flights` and `get_flight_details` to be awaitable callables, so
-# rebind the names to the original functions attached to the tool objects.
-try:
-    search_flights_tool = search_flights
-    search_flights = search_flights_tool.fn
-except NameError:
-    pass
-
-try:
-    get_flight_details_tool = get_flight_details
-    get_flight_details = get_flight_details_tool.fn
-except NameError:
-    pass
 
 
 # ============== BOOKING MANAGEMENT TOOLS ==============
@@ -531,5 +516,36 @@ import prompts.templates
 # ============== MAIN ENTRY POINT ==============
 
 if __name__ == "__main__":
-    # Run the server
-    mcp.run()
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Flight MCP Server")
+    parser.add_argument(
+        "--transport",
+        choices=["stdio", "streamable-http"],
+        default=os.getenv("MCP_TRANSPORT", "stdio"),
+        help="Transport protocol (default: stdio, or set MCP_TRANSPORT env var)"
+    )
+    parser.add_argument(
+        "--host",
+        default=os.getenv("MCP_HOST", "0.0.0.0"),
+        help="Host to bind to for HTTP transport (default: 0.0.0.0)"
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=int(os.getenv("MCP_PORT", "8000")),
+        help="Port to bind to for HTTP transport (default: 8000)"
+    )
+    
+    args = parser.parse_args()
+    
+    if args.transport == "streamable-http":
+        print(f"Starting Flight MCP Server with Streamable HTTP on {args.host}:{args.port}")
+        mcp.run(
+            transport="streamable-http",
+            host=args.host,
+            port=args.port
+        )
+    else:
+        print("Starting Flight MCP Server with stdio transport")
+        mcp.run()
