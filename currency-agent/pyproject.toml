@@ -22,7 +22,7 @@ dependencies = [
 extend = "../../../pyproject.toml"
 
 [tool.ruff.lint.isort]
-known-first-party = ["currency_agent"]
+known-first-party = ["currency_agent", "orchestrator_agent"]
 
 [tool.agent-starter-pack.settings]
 agent_directory = "currency_agent"
