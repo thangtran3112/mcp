@@ -30,7 +30,7 @@ root_agent = LlmAgent(
     tools=[
         MCPToolset(
             connection_params=StreamableHTTPConnectionParams(
-                url=os.getenv("MCP_SERVER_URL", "http://localhost:8080/mcp")
+                url=os.getenv("MCP_SERVER_URL", "http://127.0.0.1:8080/mcp")
             )
         )
     ],
