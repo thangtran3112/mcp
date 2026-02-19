@@ -11,6 +11,10 @@ logging.basicConfig(format="[%(levelname)s]: %(message)s", level=logging.INFO)
 
 load_dotenv()
 
+_mcp_port = os.getenv("MCP_PORT", "8282")
+_mcp_host = os.getenv("MCP_HOST", "127.0.0.1")
+_mcp_url = os.getenv("MCP_SERVER_URL", f"http://{_mcp_host}:{_mcp_port}/mcp")
+
 SYSTEM_INSTRUCTION = (
     "You are a specialized assistant for currency conversions. "
     "Your sole purpose is to use the 'get_exchange_rate' tool to answer questions about currency exchange rates. "
@@ -29,9 +33,7 @@ root_agent = LlmAgent(
     instruction=SYSTEM_INSTRUCTION,
     tools=[
         MCPToolset(
-            connection_params=StreamableHTTPConnectionParams(
-                url=os.getenv("MCP_SERVER_URL", "http://127.0.0.1:8080/mcp")
-            )
+            connection_params=StreamableHTTPConnectionParams(url=_mcp_url)
         )
     ],
 )
